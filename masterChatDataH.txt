@@ -8767,7 +8767,9 @@ d273d30b964f3b11
 
 fff987243bea6b8d
 [U:1:115074332]	CURRY IN A HURRY	lol
-[U:1:1312522307]	Gibus Spy	XXXXXXXSaul Goodman has found: XXXXXXX$7.000.000 in cash!
+[U:1:1312522307]	Gibus Spy	
+XXXXXXXSaul Goodman has found: 
+XXXXXXX$7.000.000 in cash!
 [U:1:1593006923]	royal trashcan (she/her)  >:3	ow
 [U:1:210826573]	Fallout 3: GOTY Edition	lol
 [U:1:210826573]	Fallout 3: GOTY Edition	didnt even get the other meedic
