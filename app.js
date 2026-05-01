@@ -17,7 +17,7 @@ if (chatid) {
 
 
 var usersWhoChatted = new Set();
-function setChatted() {
+async function setChatted() {
     fetch('masterChat.txt')
         .then(response => response.text())
         .then(allText => {
@@ -133,7 +133,7 @@ function displayChatDetails(chatId) {
 
 
 // method to read matches and display users for a specified match id
-function displayMatchDetails(matchId) {
+async function displayMatchDetails(matchId) {
     const docroot = document.getElementsByClassName('docroot')[0];
     // Remove search bar if it exists
     const searchBar = document.getElementById('searchBar');
@@ -147,7 +147,7 @@ function displayMatchDetails(matchId) {
     returnLink.textContent = "Return to Main Page";
     docroot.appendChild(returnLink);
 
-    setChatted();
+    await setChatted();
     fetch('matches.txt')
         .then(response => response.text())
         .then(allText => {
@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (matchid) {
-        displayMatchDetails(matchid);
+        await displayMatchDetails(matchid);
         return;
     }
 
