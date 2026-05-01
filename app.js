@@ -18,7 +18,7 @@ if (chatid) {
 
 var usersWhoChatted = new Set();
 async function setChatted() {
-    fetch('masterChat.txt')
+    return fetch('masterChat.txt')
         .then(response => response.text())
         .then(allText => {
             var lines = allText.split('\n');
@@ -38,6 +38,7 @@ async function setChatted() {
                     usersWhoChatted.add(parts[2]);
                 }
             }
+            return 1;
         });
 }
 
