@@ -48,7 +48,7 @@ function getMatchChatMessages(matchId) {
     return fetch('masterChatDataH.txt')
         .then(response => response.text())
         .then(allText => {
-            const blocks = allText.split('\r\n\r\n');
+            const blocks = allText.split(/\r?\n\r?\n/);
             var matchBlock = blocks.find(block => block.startsWith(matchId));
             var endIndex = matchBlock.indexOf('\n\n');
             if (endIndex !== -1) {
@@ -151,7 +151,7 @@ function displayMatchDetails(matchId) {
     fetch('matches.txt')
         .then(response => response.text())
         .then(allText => {
-            const blocks = allText.split('\r\n\r\n');
+            const blocks = allText.split(/\r?\n\r?\n/);
             const matchBlock = blocks.find(block => block.startsWith(matchId));
             if (matchBlock) {
                 const lines = matchBlock.split('\n');
@@ -224,7 +224,7 @@ fetch('matches.txt')
     .then(response => response.text())
     .then(allText => {
         // Stable dict of friendly search.
-        const blocks = allText.split('\r\n\r\n');
+        const blocks = allText.split(/\r?\n\r?\n/);
         blocks.forEach(block => {
             const lines = block.split('\n');
             if (lines[0] == "") {
@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetch('matches.txt')
         .then(response => response.text())
         .then(allText => {
-            const blocks = allText.split('\r\n\r\n');
+            const blocks = allText.split(/\r?\n\r?\n/);
             console.log(blocks.length)
 
             var x = 0
