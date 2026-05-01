@@ -1,0 +1,86 @@
+h1 { 
+    font-family: monospace; 
+    color: #f5e7de; 
+    background: #2b2724; 
+    padding: 5px; 
+}
+
+.h1Error {
+    font-family: monospace;
+    color: #fa5454;
+    background: #2b272400;
+    padding: 5px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.title {
+    font-family: monospace;
+    color: #def0f5;
+    background: #000000;
+    padding: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.h2username {
+    font-family: monospace;
+    color: #f5e7de;
+    background: #2b2724;
+    padding: 5px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.h2chatMessage {
+    font-family: monospace;
+    color: #f5e7de;
+    background: #2b2724;
+    padding: 5px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+body {
+    background: #030303;
+}
+
+.docroot {
+    display: block;
+    width: 50%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.matchTextElement {
+    font-family: monospace;
+    color: #f5e7de;
+    background: #2b2724;
+    padding: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    width: 75%;
+    margin: 0 auto 10px auto;
+}
+
+.tempSearchResult {
+    font-family: monospace;
+    color: #f5e7de;
+    background: #2b272400;
+    padding: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    margin: 0 auto 10px auto;
+}
+
+.searchBar {
+    display: block;
+    width: 50%;
+    margin: 20px auto;
+    padding: 10px;
+    font-size: 16px;
+}
