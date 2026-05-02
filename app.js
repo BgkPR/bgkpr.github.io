@@ -1,10 +1,8 @@
 // This replaces DotNet
 console.log("Processing...");
-
 const currentUrl = window.location.href;
 const basePath = currentUrl.substring(0, currentUrl.lastIndexOf('/')) + '/';
 console.log(`Base path: ${basePath}`);
-
 const urlParams = new URLSearchParams(window.location.search);
 const matchid = urlParams.get('matchid');
 if (matchid) {
@@ -14,7 +12,6 @@ const chatid = urlParams.get('chatid');
 if (chatid) {
     console.log(`Chat parameter found: ${chatid}`);
 }
-
 var usersWhoChatted = new Set();
 async function setChatted() {
     return fetch('masterChat.txt')
@@ -30,7 +27,6 @@ async function setChatted() {
                     lines[i] = parts.join('\t');
                 }
             }
-
             for (let i = 0; i < lines.length; i++) {
                 const parts = lines[i].split('\t');
                 if (parts.length >= 3 && !usersWhoChatted.has(parts[2])) {
@@ -40,7 +36,6 @@ async function setChatted() {
             return 1;
         });
 }
-
 // Reads masterChatDataH.txt and logs all chat messages for a specified match ID
 function getMatchChatMessages(matchId) {
     console.log(`Fetching chat messages for Match ID: ${matchId}`);
@@ -74,9 +69,6 @@ function getMatchChatMessages(matchId) {
             return [];
         });
 }
-
-
-// Method to read chats and display messages for a specified chat id
 function displayChatDetails(chatId) {
     const docroot = document.getElementById('docroot');
     const searchBar = document.getElementById('searchBar');
@@ -98,10 +90,8 @@ function displayChatDetails(chatId) {
                     lines[i] = parts.join('\t');
                 }
             }
-
             console.log(`Total lines in chats.txt: ${lines.length}`);
             console.log(`Filtering for Chat ID: ${chatId}`);
-
             const chatLines = lines.filter(line => line.split('\t')[2] === chatId);
             console.log(`Found ${chatLines.length} lines for Chat ID ${chatId}.`);
             if (chatLines.length > 0) {
@@ -109,20 +99,14 @@ function displayChatDetails(chatId) {
                 titleElement.textContent = `Chat ID: ${chatId}`;
                 titleElement.classList.add('title');
                 docroot.appendChild(titleElement);
-                // use createTableTR to maintain consistent styling.
-
                 chatLines.forEach(line => {
                     const parts = line.split('\t');
                     const username = parts[0];
-                    const message = parts[1];
-                    var textContent = `${username} : ${message}`;
-                    // Edit style for chat messages.
-                    
-                    var created = createTableTR(textContent, '', 'matchTextElement', '');
+                    const message = parts[1].replace(/"/g, '').replace(/\r/g, '');
+                    var textContent = `${username} : ${message}`;         
+                    var created = createTableTR(textContent, '', 'h2chatMessage', '', 'h1');
                     docroot.appendChild(created);
                 });
-
-                
             } else {
                 const h1 = document.createElement('h1');
                 h1.textContent = `No records for ${chatId}`;
@@ -131,25 +115,15 @@ function displayChatDetails(chatId) {
             }
         });
 }
-
-
-
-// method to read matches and display users for a specified match id
 async function displayMatchDetails(matchId) {
-    // Get docroot by id name
     const docroot = document.getElementById('docroot');
-    // Remove search bar if it exists
     const searchBar = document.getElementById('searchBar');
-    if (searchBar) {
-        searchBar.remove();
-    }
-    // Add return to main page link
+    if (searchBar) searchBar.remove();
     docroot.appendChild(document.createElement('br'));
     const returnLink = document.createElement('a');
     returnLink.href = `${basePath}index.html`;
     returnLink.textContent = "Return to Main Page";
     docroot.appendChild(returnLink);
-
     await setChatted();
     fetch('matches.txt')
         .then(response => response.text())
@@ -166,18 +140,14 @@ async function displayMatchDetails(matchId) {
                 for (var player = 1; player < lines.length; player++) {
                     console.log(`Player: ${lines[player]}`);
                     const matchId = lines[0];
-
                     const h1 = document.createElement('h2');
                     h1.textContent = `${lines[player]}`;
                     h1.classList.add('h2username');
-                    // Link to player chats for this user.
                     const rawId = lines[player].split("\t")[0];
-
                     if (usersWhoChatted.has(rawId)) {
                         const anchor = document.createElement('a');
                         anchor.href = `${basePath}index.html?chatid=${rawId}`;
                         anchor.textContent = "User Chats (Non Match-Specific)";
-
                         const separator = document.createElement('span');
                         separator.textContent = " | ";
                         separator.style.margin = "0 5px";
@@ -246,15 +216,9 @@ fetch('matches.txt')
     .catch(error => {
         console.error('Error prefetching matches.txt:', error);
     });
-
-
 function searchBarInput() {
     var docroot = document.getElementById('docroot');
-
-    if (!docroot) {
-        console.error("Docroot element not found!");
-        return;
-    }
+    if (!docroot) return console.error("Docroot element not found!");
     const query = searchBar.value.toLowerCase().trim();
     const matchElements = document.getElementsByClassName('matchTextElement');
     Array.from(matchElements).forEach(element => {
@@ -265,11 +229,11 @@ function searchBarInput() {
             element.parentElement.style.display = 'none';
         }
     });
-    // No matches.
-    if (document.querySelectorAll('.matchTextElement:not([style*="display: none"])').length === 0) {
+    var queryTrNotVisible = 'tr:not([style*="display: none"])';
+    var queryMatchTextNotVisible = '.matchTextElement:not([style*="display: none"])';
+    if (document.querySelectorAll(queryTrNotVisible).length === 0) {
         console.log(`No matches found for "${query}". Searching by player ID...`);
         var queryUpper = query.toUpperCase();
-
         // Nonstandard input.
         if (/^\d+$/.test(query)) {
             queryUpper = `[U:1:${query}]`;
@@ -279,9 +243,7 @@ function searchBarInput() {
             queryUpper = `[${queryUpper}]`;
             console.log(`Assuming query is a steamID missing brackets. Converted to ${queryUpper}`);
         }
-
         var userMatches = userDict[queryUpper];
-
         // Aliasing and partial username search.
         if (!userMatches && query.length >= 2) {
             console.log(`No matches found for player ID "${queryUpper}". Searching by username...`);
@@ -291,7 +253,6 @@ function searchBarInput() {
                     const colonIndex = matchEntry.indexOf(':');
                     const matchId = matchEntry.substring(0, colonIndex);
                     const username = matchEntry.substring(colonIndex + 1);
-
                     if (username.toLowerCase().includes(query)) {
                         console.log(`Found username match: ${username} in match ID ${matchId} for player ID ${rawId}`);
                         if (!userMatches) {
@@ -303,7 +264,6 @@ function searchBarInput() {
                 }
             }
         }
-
         console.log(`User matches for "${queryUpper}": ${userMatches}`);
         let tempElement = document.getElementById('tempSearchResult');
         if (!tempElement) {
@@ -324,13 +284,12 @@ function searchBarInput() {
                 } else {
                    textContent = `Match ID: ${matchId}, Username: ${username}`;
                 }
-                var tmp = createTableTR(textContent, `${basePath}index.html?matchid=${matchId}`, 'tdusersearchresult', '');
+                var tmp = createTableTR(textContent, `${basePath}index.html?matchid=${matchId}`, 'matchTextElement', '');
                 tempElement.appendChild(tmp);
             });
         } else {
             tempElement.textContent = `No matches found for query: ${queryUpper}`;
         }
-
     } else {
         const tempElement = document.getElementById('tempSearchResult');
         if (tempElement) {
@@ -338,12 +297,10 @@ function searchBarInput() {
         }
     }
 }
-
-function createTableTR(text, href, textClass, hrefClass) {
+function createTableTR(text, href, textClass, hrefClass, customElementType) {
     const tr = document.createElement('tr');
-    const td = document.createElement('td');
+    const td = customElementType ? document.createElement(customElementType) : document.createElement('td');
     td.textContent = text;
-    td.classList.add('matchTextElement');
     if (textClass && textClass !== '') {
         const classes = textClass.split(',').map(cls => cls.trim());
         classes.forEach(cls => {
@@ -367,12 +324,9 @@ function createTableTR(text, href, textClass, hrefClass) {
         td.textContent = '';
         td.appendChild(anchor);
     }
-
     tr.appendChild(td);
-
     return tr;
 }
-
 document.addEventListener('DOMContentLoaded', async () => {
     var docroot = document.getElementById('docroot');
     if (!docroot) return console.error("Docroot element not found!");
@@ -397,13 +351,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     console.log("EOF")
                     return;
                 }
-
                 x += 1;
                 docroot.appendChild(createTableTR(lines[0], `${basePath}index.html?matchid=${lines[0]}`, 'matchTextElement', ''));
             });
             console.log(`Parsed ${x} entries`)
         });
-
     // Cross referenced with raw input for posterity.
     const searchBar = document.getElementById('searchBar');
     if (!searchBar) {
