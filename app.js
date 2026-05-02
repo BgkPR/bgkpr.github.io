@@ -260,9 +260,9 @@ function searchBarInput() {
     Array.from(matchElements).forEach(element => {
         const text = element.textContent.toLowerCase();
         if (text.includes(query)) {
-            element.style.display = '';
+            element.parentElement.style.display = 'flex';
         } else {
-            element.style.display = 'none';
+            element.parentElement.style.display = 'none';
         }
     });
     // No matches.
