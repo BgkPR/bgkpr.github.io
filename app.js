@@ -15,7 +15,6 @@ if (chatid) {
     console.log(`Chat parameter found: ${chatid}`);
 }
 
-
 var usersWhoChatted = new Set();
 async function setChatted() {
     return fetch('masterChat.txt')
@@ -45,7 +44,6 @@ async function setChatted() {
 // Reads masterChatDataH.txt and logs all chat messages for a specified match ID
 function getMatchChatMessages(matchId) {
     console.log(`Fetching chat messages for Match ID: ${matchId}`);
-
     return fetch('masterChatDataH.txt')
         .then(response => response.text())
         .then(allText => {
@@ -75,14 +73,12 @@ function getMatchChatMessages(matchId) {
             console.error('Error fetching masterChatDataH.txt:', error);
             return [];
         });
-
-
 }
 
 
 // Method to read chats and display messages for a specified chat id
 function displayChatDetails(chatId) {
-    const docroot = document.getElementsByClassName('docroot')[0];
+    const docroot = document.getElementById('docroot');
     const searchBar = document.getElementById('searchBar');
     if (searchBar) {
         searchBar.remove();
@@ -113,15 +109,20 @@ function displayChatDetails(chatId) {
                 titleElement.textContent = `Chat ID: ${chatId}`;
                 titleElement.classList.add('title');
                 docroot.appendChild(titleElement);
+                // use createTableTR to maintain consistent styling.
+
                 chatLines.forEach(line => {
                     const parts = line.split('\t');
                     const username = parts[0];
                     const message = parts[1];
-                    const messageElement = document.createElement('h1');
-                    messageElement.textContent = `${username}: ${message}`;
-                    messageElement.classList.add('chatMessage');
-                    docroot.appendChild(messageElement);
+                    var textContent = `${username} : ${message}`;
+                    // Edit style for chat messages.
+                    
+                    var created = createTableTR(textContent, '', 'matchTextElement', '');
+                    docroot.appendChild(created);
                 });
+
+                
             } else {
                 const h1 = document.createElement('h1');
                 h1.textContent = `No records for ${chatId}`;
@@ -135,7 +136,8 @@ function displayChatDetails(chatId) {
 
 // method to read matches and display users for a specified match id
 async function displayMatchDetails(matchId) {
-    const docroot = document.getElementsByClassName('docroot')[0];
+    // Get docroot by id name
+    const docroot = document.getElementById('docroot');
     // Remove search bar if it exists
     const searchBar = document.getElementById('searchBar');
     if (searchBar) {
@@ -161,9 +163,6 @@ async function displayMatchDetails(matchId) {
                 titleElement.textContent = `Match ID: ${matchId}`;
                 titleElement.classList.add('title');
                 docroot.appendChild(titleElement);
-
-
-
                 for (var player = 1; player < lines.length; player++) {
                     console.log(`Player: ${lines[player]}`);
                     const matchId = lines[0];
@@ -189,8 +188,6 @@ async function displayMatchDetails(matchId) {
                     docroot.appendChild(h1);
                 }
                 const chatMessages = getMatchChatMessages(matchId);
-
-
                 chatMessages.then(messages => {
                     if (messages.length > 0) {
                         const chatTitle = document.createElement('h1');
@@ -216,8 +213,6 @@ async function displayMatchDetails(matchId) {
             }
         });
 }
-
-
 var userDict = {};
 // Prefetch matches.txt to improve performance when navigating back to the main page
 // Performance is already subpar.
@@ -254,7 +249,7 @@ fetch('matches.txt')
 
 
 function searchBarInput() {
-    var docroot = document.getElementsByClassName('docroot')[0];
+    var docroot = document.getElementById('docroot');
 
     if (!docroot) {
         console.error("Docroot element not found!");
@@ -312,33 +307,25 @@ function searchBarInput() {
         console.log(`User matches for "${queryUpper}": ${userMatches}`);
         let tempElement = document.getElementById('tempSearchResult');
         if (!tempElement) {
-            tempElement = document.createElement('div');
+            tempElement = document.createElement('table');
             tempElement.id = 'tempSearchResult';
-            tempElement.classList.add('tempSearchResult');
-            docroot.appendChild(tempElement);
+            tempElement.classList.add('results-wrapper-search');
+            tempElement.style.marginTop = '20px';
+            document.body.appendChild(tempElement);
         }
         if (userMatches) {
             const matches = userMatches.split(', ');
             tempElement.innerHTML = '';
             matches.forEach(match => {
                 const [matchId, username] = match.split(':');
-                const matchDiv = document.createElement('h1');
+                var textContent = `Match ID: ${matchId}, Username: ${username}`;
                 if (queryUpper.startsWith("[U:1:") && queryUpper.endsWith("]")) {
-                    matchDiv.textContent = `Match ID: ${matchId}, Steam ID: ${queryUpper}, Username: ${username}`;
+                    textContent = `Match ID: ${matchId}, Steam ID: ${queryUpper}, Username: ${username}`;
                 } else {
-                    matchDiv.textContent = `Match ID: ${matchId}, Username: ${username}`;
+                   textContent = `Match ID: ${matchId}, Username: ${username}`;
                 }
-                matchDiv.classList.add('matchTextElement');
-                matchDiv.style.width = '100%';
-
-
-                const anchor = document.createElement('a');
-                anchor.href = `${basePath}index.html?matchid=${matchId}`;
-                anchor.textContent = matchDiv.textContent;
-                matchDiv.textContent = '';
-                matchDiv.appendChild(anchor);
-
-                tempElement.appendChild(matchDiv);
+                var tmp = createTableTR(textContent, `${basePath}index.html?matchid=${matchId}`, 'tdusersearchresult', '');
+                tempElement.appendChild(tmp);
             });
         } else {
             tempElement.textContent = `No matches found for query: ${queryUpper}`;
@@ -352,32 +339,58 @@ function searchBarInput() {
     }
 }
 
-// Wait
+function createTableTR(text, href, textClass, hrefClass) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.textContent = text;
+    td.classList.add('matchTextElement');
+    if (textClass && textClass !== '') {
+        const classes = textClass.split(',').map(cls => cls.trim());
+        classes.forEach(cls => {
+            if (cls) {
+                td.classList.add(cls);
+            }
+        });
+    }
+    if (href) {
+        const anchor = document.createElement('a');
+        anchor.href = href;
+        anchor.textContent = td.textContent;
+        if (hrefClass && hrefClass !== '') {
+            const classes = hrefClass.split(',').map(cls => cls.trim());
+            classes.forEach(cls => {
+                if (cls) {
+                    anchor.classList.add(cls);
+                }
+            });
+        }
+        td.textContent = '';
+        td.appendChild(anchor);
+    }
+
+    tr.appendChild(td);
+
+    return tr;
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
-    var docroot = document.getElementsByClassName('docroot')[0];
-
-    if (!docroot) {
-        console.error("Docroot element not found!");
-        return;
-    }
-
-    if (matchid) {
-        await displayMatchDetails(matchid);
-        return;
-    }
-
-    if (chatid) {
-        displayChatDetails(chatid);
-        return;
-    }
-
+    var docroot = document.getElementById('docroot');
+    if (!docroot) return console.error("Docroot element not found!");
+    if (matchid) return await displayMatchDetails(matchid);
+    if (chatid) return displayChatDetails(chatid);
     await fetch('matches.txt')
         .then(response => response.text())
         .then(allText => {
             const blocks = allText.split(/\r?\n\r?\n/);
             console.log(blocks.length)
-
             var x = 0
+            const resultsWrapper = document.getElementsByClassName('results-wrapper')[0];
+            if (resultsWrapper) {
+                resultsWrapper.classList.remove('results-wrapper');
+                resultsWrapper.classList.add('results-wrapper-search');
+            } else {
+                console.error("Results wrapper element not found!");
+            }
             blocks.forEach(block => {
                 const lines = block.split('\n');
                 if (lines[0] == "") {
@@ -386,15 +399,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 x += 1;
-                const h1 = document.createElement('h1');
-                h1.textContent = `${lines[0]}`;
-                h1.classList.add('matchTextElement');
-                const anchor = document.createElement('a');
-                anchor.href = `${basePath}index.html?matchid=${lines[0]}`;
-                anchor.textContent = h1.textContent;
-                h1.textContent = '';
-                h1.appendChild(anchor);
-                docroot.appendChild(h1);
+                docroot.appendChild(createTableTR(lines[0], `${basePath}index.html?matchid=${lines[0]}`, 'matchTextElement', ''));
             });
             console.log(`Parsed ${x} entries`)
         });
