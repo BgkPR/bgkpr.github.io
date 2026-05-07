@@ -1,28 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Match Report</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">  
+  <title>TFRecords</title>
+  <script type="module" src="appv2.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
+
 <body data-bs-theme="dark">
 
   <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
     <div class="container-fluid">
       <a class="navbar-brand fw-bold" href="#">TFRecords</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+        aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarMain">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link active" href="/matches">Matches</a></li>
-          <li class="nav-item"><a class="nav-link" href="/players">Players</a></li>
-          <li class="nav-item"><a class="nav-link" href="/top">Leaderboards (TBD)</a></li>
-          <li class="nav-item"><a class="nav-link" href="/GDPR">GDPR (Soon™)</a></li>
+          <li class="nav-item"><a id="anchorNavMatch" class="nav-link active" x-data="matches" href="#">Matches</a></li>
+          <li class="nav-item"><a id="anchorNavPlayers" class="nav-link" x-data="players" href="#">Players</a></li>
+          <li class="nav-item"><a id="anchorNavLeaderboards" class="nav-link" x-data="top" href="#">Leaderboards</a></li>
+          <li class="nav-item"><a id="anchorNavGDPR" class="nav-link" x-data="tfrecords?" href="/GDPR">GDPR (Soon™)</a></li>
+          <li class="nav-item"><a class="nav-link" x-data="old" href="/index.html">Old Homepage</a></li>
         </ul>
-        <form class="d-flex" role="search">
-          <input class="form-control me-2" type="search" placeholder="Search players or matches..." aria-label="Search" />
+        <form class="d-flex" role="search" autocomplete="off">
+          <input id="filterOutput" class="form-control me-2" type="search" placeholder="Search players or matches..."
+            aria-label="Search" />
           <button class="btn btn-light" type="submit">Search</button>
         </form>
       </div>
@@ -41,9 +48,9 @@
           </ul>
         </div>
         <div>
-          <h6 class="text-uppercase text-secondary">Recent Matches</h6>
+          <h6 class="text-uppercase text-secondary">Dashboard</h6>
           <ul class="nav flex-column">
-            <li class="nav-item"><a class="nav-link px-0" href="/tfrecords.html?match=C27A7B1C3800E4FA">Match C27A7B1C3800E4FA</a></li>
+            <li class="nav-item"><a class="nav-link px-0" href="/api/TFRECORDS">(Internal Use Only)</a></li>
           </ul>
         </div>
       </aside>
@@ -51,113 +58,168 @@
       <main class="col-lg-9">
         <nav aria-label="breadcrumb" class="mb-3">
           <ol class="breadcrumb bg-transparent p-0 mb-0">
-            <li class="breadcrumb-item"><a href="/tfrecords.html">Home</a></li>
-            <li class="breadcrumb-item"><a href="/tfrecords.html?matches">Matches</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Match ID: #104928</li>
+            <li class="breadcrumb-item active" aria-current="page" aria-label="Home"><a id="anchorHome" href="#">Home</a></li>
+            <li class="breadcrumb-item" hidden><a id="anchorMatch" href="#">Matches</a></li>
+            <li class="breadcrumb-item" hidden><a id="anchorID" href="#">C27A7B1C3800E4FA</a></li>
           </ol>
         </nav>
 
-        <div class="card card-transparent mb-4 shadow-sm p-3">
-          <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
-            <div>
-              <h1 class="h3 mb-1">Match Report - C27A7B1C3800E4FA</h1>
-              <div class="badge bg-info match-badge">PL_BADWATER @ 169.254.232.166:15072</div>
-              <div class="badge bg-light match-badge text-dark">12v12 - 31 players</div>
+        <div id="homePage">
+          <div class="card card-transparent mb-4 shadow-sm p-3">
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+              <div>
+                <h1 class="h3 mb-1">Welcome to TFRecords!</h1>
+                <p class="text-muted mb-0">Your incomprehensive source for match data and player statistics.</p>
+                
+              </div>
+              <div class="d-flex gap-2 align-items-center">
+                <a href="#" id="viewMatches" class="btn btn-primary">Explore Matches</a>
+                <a href="#" id="viewPlayers" class="btn btn-secondary">View Players</a>
+              </div>
+            </div> 
+          </div> 
+        </div>
+
+        <div id="matchesContainer">
+          <div class="card card-transparent mb-4 shadow-sm p-3" id="matchesHeader">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h5 mb-0">All Matches</h2>
+                <div class="d-flex gap-2 align-items-center">
+                <label class="mb-0 text-muted">Order By:</label>
+                <select id="sortMatches" class="form-select form-select-sm" style="width: 160px;">
+                  <option>None</option>
+                  <option>Players (ASC)</option>
+                  <option>Players (DESC)</option>
+                </select>
+              </div>
+              <button id="reloadPage" class="btn btn-outline-secondary btn-sm" type="button">Refresh</button>
             </div>
-            <div class="d-flex gap-2 align-items-center">
-              <label class="mb-0 text-muted">Sort By:</label>
-              <select class="form-select form-select-sm" style="width: 160px;">
-                <option>Team</option>
-                <option>Class</option>
-                <option>Damage</option>
-              </select>
-              <div class="form-check form-switch mb-0">
-                <input class="form-check-input" type="checkbox" id="compactView" />
-                <label class="form-check-label" for="compactView">Compact View</label>
+            <div class="table-responsive table-container" style="overflow-y: auto; max-height: 400px;">
+              <table class="table table-bordered table-hover align-middle mb-0">
+                <thead class="table-light" style="position: sticky; top: 0; z-index: 1;">
+                  <tr>
+                    <th scope="col">Match ID</th>
+                    <th scope="col">Players</th>
+                  </tr>
+                </thead>
+                <tbody id="dataMatches">
+                  <tr hidden>
+                    <td><a href="#">C27A7B1C3800E4FA</a></td>
+                    <td>31</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+
+        </div>
+
+        <div id="matchInfo" hidden>
+          <div class="card card-transparent mb-4 shadow-sm p-3">
+            <div
+              class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+              <div>
+                <h1 class="h3 mb-1 overflow-x-hidden" id="reportID">Match Report - C27A7B1C3800E4FA</h1>
+                <div class="badge bg-info match-badge" id="serverInfo">PL_BADWATER @ 169.254.232.166:15072</div>
+                <div class="badge bg-light match-badge text-dark" id="playerCount">12v12 - 31 players</div>
+              </div>
+              <div class="d-flex gap-2 align-items-center">
+                <label class="mb-0 text-muted">Sort By:</label>
+                <select class="form-select form-select-sm" style="width: 160px;">
+                  <option>Team</option>
+                  <option>Class</option>
+                </select>
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" id="compactView" />
+                  <label class="form-check-label" for="compactView">Compact View</label>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="card card-transparent shadow-sm p-3">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h5 mb-0">Match Player Roster</h2>
-            <button class="btn btn-outline-secondary btn-sm" type="button">Refresh</button>
+          <div class="card card-transparent shadow-sm p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h5 mb-0">Match Player Roster</h2>
+            </div>
+            <div class="table-responsive table-container" id="playerRoster">
+              <table class="table table-bordered table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Player</th>
+                    <th scope="col">Steam ID</th>
+                  </tr>
+                </thead>
+                <tbody id="dataPlayers">
+                  <tr hidden="">
+                    <td>1</td>
+                    <td>0</td>
+                    <td>TF_CLASS_UNDEFINED</td>
+                    <td>OnlyTwentyCharacters</td>
+                    <td>[U:1:123456789]</td>
+                  </tr>
+                  <tr>
+                    <td>1</td>
+                    <td>BLU</td>
+                    <td>CalciumCat</td>
+                    <td>[U:1:181517314]</td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>RED</td>
+                    <td>marty</td>
+                    <td>[U:1:1232855387]</td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>TF_TEAM_UNDEFINED</td>
+                    <td>Cankeroucash35</td>
+                    <td>[U:1:1164642792]</td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td>BLU</td>
+                    <td>PetertheParker</td>
+                    <td>[U:1:1306493323]</td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td>RED</td>
+                    <td>Golden_parper</td>
+                    <td>[U:1:1844337933]</td>
+                  </tr>
+                  <tr>
+                    <td>6</td>
+                    <td>BLU</td>
+                    <td>ashwaganda hikio</td>
+                    <td>[U:1:795984311]</td>
+                  </tr>
+                  <tr>
+                    <td>7</td>
+                    <td>RED</td>
+                    <td>2D</td>
+                    <td>[U:1:788646905]</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div class="table-responsive table-container">
-            <table class="table table-bordered table-hover align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th scope="col"></th>
-                  <th scope="col">Team</th>
-                  <th scope="col">Class</th>
-                  <th scope="col">Player</th>
-                  <th scope="col">Steam ID</th>
-                </tr>
-              </thead>
-              <tbody id="data">
-                <tr hidden="">
-                  <td>1</td>
-                  <td>0</td>
-                  <td>TF_CLASS_UNDEFINED</td>
-                  <td>OnlyTwentyCharacters</td>
-                  <td>[U:1:123456789]</td>
-                </tr>
-                <tr>
-                  <td>1</td>
-                  <td>BLU</td>
-                  <td>Engineer</td>
-                  <td>CalciumCat</td>
-                  <td>[U:1:181517314]</td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>RED</td>
-                  <td>Scout, Demoman</td>
-                  <td>marty</td>
-                  <td>[U:1:1232855387]</td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>0</td>
-                  <td>TF_CLASS_UNDEFINED</td>
-                  <td>Cankeroucash35</td>
-                  <td>[U:1:1164642792]</td>
-                </tr>
-                <tr>
-                  <td>4</td>
-                  <td>BLU</td>
-                  <td>Soldier</td>
-                  <td>PetertheParker</td>
-                  <td>[U:1:1306493323]</td>
-                </tr>
-                <tr>
-                  <td>5</td>
-                  <td>RED</td>
-                  <td>Pyro</td>
-                  <td>Golden_parper</td>
-                  <td>[U:1:1844337933]</td>
-                </tr>
-                <tr>
-                  <td>6</td>
-                  <td>BLU</td>
-                  <td>Spy</td>
-                  <td>ashwaganda hikio</td>
-                  <td>[U:1:795984311]</td>
-                </tr>
-                <tr>
-                  <td>7</td>
-                  <td>RED</td>
-                  <td>Heavy</td>
-                  <td>2D</td>
-                  <td>[U:1:788646905]</td>
-                </tr>
-                <tr>
-                  <td colspan="8" class="text-center text-muted">Additional rows will be populated programmatically.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+
+          <div class="card card-transparent shadow-sm p-3 mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h5 mb-0">Match Chat Log</h2>
+            </div>
+            <div class="table-responsive table-container" id="chatLog">
+              <table class="table table-bordered table-hover align-middle mb-0">
+                <tbody id="dataChat">
+                  <tr hidden="">
+                    <td>[U:1:123456789]</td>
+                    <td>OnlyTwentyCharacters</td>
+                    <td>Hello, world!</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
         </div>
       </main>
     </div>
@@ -167,6 +229,9 @@
     <small>Copyright © 2026 BgkPR</small>
   </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
 </body>
+
 </html>
