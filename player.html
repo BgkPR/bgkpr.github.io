@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Player Record</title>
+  <script type="module" src="players.js"></script>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #151c26;
+      --panel-light: #1c2633;
+      --text: #edf4ff;
+      --muted: #93a4b8;
+      --accent: #1028ff;
+      --accent-2: #ffca62;
+      --danger: #ff7185;
+      --border: #2b394a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: Inter, Segoe UI, sans-serif;
+      background:
+        radial-gradient(circle at top right, #181365 0, transparent 35rem),
+        var(--bg);
+    }
+
+    header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem clamp(1rem, 5vw, 5rem);
+      border-bottom: 0;
+      position: relative;
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 35%;
+      width: 30%;
+      border-bottom: 1px ridge var(--border);
+    }
+
+    .brand {
+      color: var(--text);
+      font-weight: 800;
+      font-size: 2rem;
+      text-transform: unset;
+    }
+
+    main {
+      width: min(1100px, calc(100% - 2rem));
+      margin: 2rem auto;
+    }
+
+    .profile-card {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--panel-light), var(--panel));
+      box-shadow: 0 20px 60px #0005;
+    }
+
+    .avatar {
+      width: 112px;
+      height: 112px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 50%;
+      overflow: hidden;
+      color: #10201f;
+      background: var(--accent);
+      font-size: 2.5rem;
+      font-weight: 900;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .skeleton {
+      display: block;
+      height: 1em;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #ffffff0d 25%, #ffffff2b 50%, #ffffff0d 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite linear;
+    }
+
+    .skeleton-title { width: min(280px, 70vw); height: 1.15em; }
+    .skeleton-id { width: 180px; }
+
+    @keyframes shimmer {
+      from { background-position: 200% 0; }
+      to { background-position: -200% 0; }
+    }
+
+    h1, h2, p { margin-top: 0; }
+
+    h1 {
+      margin-bottom: .4rem;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+    }
+
+    .user-id, .muted {
+      color: var(--muted);
+      word-break: break-word;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .alias-column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    section {
+      padding: 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--panel);
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .alias-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .alias-list li {
+      padding: .45rem .7rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--accent-2);
+      background: #ffffff08;
+    }
+
+    .alias-list .shimmer-alias {
+      width: 100px;
+      height: 1.8rem;
+      padding: 0;
+    }
+
+    .home-button {
+      display: inline-block;
+      margin-top: 1rem;
+      align-self: flex-start;
+      padding: .65rem 1rem;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      color: var(--text);
+      background: var(--bg);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .home-button:hover,
+    .home-button:focus-visible {
+      background: #2439ff;
+    }
+
+    .matches {
+      display: grid;
+      gap: .7rem;
+    }
+
+    .match {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      padding: 1rem;
+      border-left: 3px solid var(--accent);
+      border-radius: 8px;
+      background: var(--panel-light);
+    }
+
+    .match-shimmer {
+      height: 4.25rem;
+      border-left-color: var(--border);
+    }
+
+    .match strong { display: block; margin-bottom: .25rem; }
+    .match small { color: var(--muted); }
+    small {color: var(--muted);}
+
+    .win { color: var(--accent); }
+    .loss { color: var(--danger); }
+
+    .empty {
+      padding: 1rem;
+      color: var(--muted);
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+    }
+
+    @media (max-width: 700px) {
+      .profile-card, .grid { grid-template-columns: 1fr; }
+      .profile-card { display: block; text-align: center; }
+      .avatar { margin: 0 auto 1rem; }
+      .match { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">TFRecords</div>
+    
+  </header>
+
+  <main>
+    
+    <article class="profile-card">
+      <div id="avatar" class="avatar"><span class="skeleton" aria-label="Loading avatar"></span></div>
+      <div>
+        <h1 id="displayName"><span class="skeleton skeleton-title" aria-label="Loading player name"></span></h1>
+        <p id="userId" class="user-id"><span class="skeleton skeleton-id" aria-label="Loading player ID"></span></p>
+        <p class="muted"></p>
+      </div>
+    </article>
+
+    <div class="grid">
+      <div class="alias-column">
+        <section>
+          <h2>Known aliases</h2>
+          <ul id="aliases" class="alias-list">
+            <li class="skeleton shimmer-alias" aria-label="Loading alias"></li>
+            <li class="skeleton shimmer-alias" aria-label="Loading alias"></li>
+            <li class="skeleton shimmer-alias" aria-label="Loading alias"></li>
+          </ul>
+        </section>
+        <a class="home-button" href="/tfrecords.html?">Return to homepage</a>
+      </div>
+
+      <section>
+        <h2>Played matches</h2>
+        <div id="matches" class="matches">
+          <div class="skeleton match match-shimmer" aria-label="Loading match"></div>
+          <div class="skeleton match match-shimmer" aria-label="Loading match"></div>
+          <div class="skeleton match match-shimmer" aria-label="Loading match"></div>
+        </div>
+        
+      </section>
+    </div>
+  </main>
+</body>
+</html>
