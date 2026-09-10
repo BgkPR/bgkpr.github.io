@@ -1,4 +1,4 @@
-import { toggleVisibility, switchElements, getElements, getLastKnownMatch, clearFirstElementChild, getAllMatches, getUsers, getElementById, getAllMatchChatMessages, getMessagesForUser, getMatchChatMessages } from "./IAA.js";
+import { switchElements, getElements, getLastKnownMatch, clearFirstElementChild, getAllMatches, getUsers, getElementById, getAllMatchChatMessages, getMessagesForUser, getMatchChatMessages } from "./IAA.js";
 console.log("TFRecords - v2.0α");
 console.log(`Base path: ${(window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/')}`);
 if(typeof process != "undefined" && process.env.ENV_PROD_URL && window.location.origin === process.env.ENV_PROD_URL) {
@@ -28,18 +28,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         location.reload();
     });
 
-    /*
-    filterOutput.addEventListener("blur", () => {
-        if(document.activeElement && document.activeElement.id === "playerMatchDropdown") {
+    function repositionPlayerMatchDropdown() {
+        const dropdown = document.getElementById("playerMatchDropdown");
+        if (!dropdown || dropdown.innerHTML.trim() === "" || filterOutput.value.toLowerCase().trim() === "") {
             return;
         }
-        setTimeout(() => {
-            let dropdown = document.getElementById("playerMatchDropdown");
-            if (dropdown) {
-                dropdown.remove();
-            }
-        }, 200);
-    });*/
+        const rect = filterOutput.getBoundingClientRect();
+        dropdown.style.top = `${rect.bottom + window.scrollY}px`;
+        dropdown.style.left = `${rect.left + window.scrollX}px`;
+        dropdown.style.width = `${filterOutput.offsetWidth}px`;
+    }
+
+    window.addEventListener("resize", repositionPlayerMatchDropdown);
+    window.addEventListener("scroll", repositionPlayerMatchDropdown, true);
 
     filterOutput.addEventListener("input", () => {
         const filterText = filterOutput.value.toLowerCase();
@@ -79,51 +80,28 @@ document.addEventListener("DOMContentLoaded", async () => {
                 dropdown.id = "playerMatchDropdown";
                 dropdown.classList.add("dropdown-menu", "show");
                 dropdown.style.position = "absolute";
-                dropdown.style.top = `${filterOutput.getBoundingClientRect().bottom + window.scrollY}px`;
-                dropdown.style.left = `${filterOutput.getBoundingClientRect().left + window.scrollX}px`;
-                dropdown.style.width = `${filterOutput.offsetWidth}px`;
-
-                for (const match of limitedMatches) {
-                    const option = document.createElement("a");
-                    option.classList.add("dropdown-item");
-                    //option.href = `#${match.matchId}`;
-                    const matchingPlayer = match.players.find(player => player.username.toLowerCase().includes(filterText) || player.steamid.toLowerCase().includes(filterText));
-                    var croppedUsername = matchingPlayer.username;
-                    if (croppedUsername.length > 11) {
-                        croppedUsername = croppedUsername.slice(0, 10).trim() + "...";
-                    }
-                    option.textContent = `${croppedUsername} ${matchingPlayer.steamid}`;
-                    dropdown.appendChild(option);
-                    option.addEventListener("click", () => {
-                        toggleVisibility("homePage", false);
-                        toggleVisibility("matchInfo", true);
-                        toggleVisibility("matchesHeader", false);
-                        displayMatchDetails(match.matchId);
-                    });
-                }
                 document.body.appendChild(dropdown);
                 filterOutput.parentNode.appendChild(dropdown);
             } else {
                 dropdown.innerHTML = "";
-                limitedMatches.forEach(match => {
-                    const option = document.createElement("a");
-                    option.classList.add("dropdown-item");
-                    //option.href = `#${match.matchId}`;
-                    const matchingPlayer = match.players.find(player => player.username.toLowerCase().includes(filterText) || player.steamid.toLowerCase().includes(filterText));
-                    var croppedUsername = matchingPlayer.username;
-                    if (croppedUsername.length > 11) {
-                        croppedUsername = croppedUsername.slice(0, 10).trim() + "...";
-                    }
-                    option.textContent = `${croppedUsername} ${matchingPlayer.steamid}`;
-                    dropdown.appendChild(option);
-                    option.addEventListener("click", () => {
-                        toggleVisibility("homePage", false);
-                        toggleVisibility("matchInfo", true);
-                        toggleVisibility("matchesHeader", false);
-                        displayMatchDetails(match, match.players);
-                    });
-                });
             }
+            limitedMatches.forEach(match => {
+            const option = document.createElement("a");
+            option.classList.add("dropdown-item");
+            //option.href = `#${match.matchId}`;
+            const matchingPlayer = match.players.find(player => player.username.toLowerCase().includes(filterText) || player.steamid.toLowerCase().includes(filterText));
+            var croppedUsername = matchingPlayer.username;
+            if (croppedUsername.length > 11) {
+                croppedUsername = croppedUsername.slice(0, 10).trim() + "...";
+            }
+            option.textContent = `${croppedUsername} ${matchingPlayer.steamid}`;
+            dropdown.appendChild(option);
+            option.addEventListener("click", () => {
+                switchElements(mainPageSwitches, {"matchInfo": true, "matchesContainer": true})
+                    displayMatchDetails(match, match.players);
+                });
+            });
+            repositionPlayerMatchDropdown();
         });
     });
 
@@ -150,9 +128,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function displayMatchDetails(match, players) {
         //console.log(`Displaying details for match ${match.matchId} with players:`, players);
-        toggleVisibility("homePage", false);
-        toggleVisibility("matchInfo", true);
-        toggleVisibility("matchesHeader", false);
+        switchElements(mainPageSwitches, {"matchInfo": true, "matchesContainer": true})
         anchorID.textContent = `Match ID: ${match.matchId}`;
         const matchPlayersList = document.getElementById("dataPlayers");
         if (matchPlayersList) {
