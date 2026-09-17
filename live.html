@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TFRecords Live Match</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --blu-color: #4497be;
+            --red-color: #d64245;
+            --text-color: #e0e0e0;
+            --subtext-color: #a0a0a0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .header-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        .status-recording { background-color: #2e7d32; color: #fff; }
+        .status-idle { background-color: #424242; color: #aaa; }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 15px;
+            border-radius: 6px;
+        }
+
+        .info-box span {
+            display: block;
+            font-size: 0.8em;
+            color: var(--subtext-color);
+        }
+
+        .info-box strong {
+            font-size: 1.1em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #2c2c2c;
+        }
+
+        th {
+            background-color: #252525;
+            color: var(--subtext-color);
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .team-blu { color: var(--blu-color); font-weight: bold; }
+        .team-red { color: var(--red-color); font-weight: bold; }
+        .gc-defenders { color: #e55858; font-weight: bold; }
+        .gc-invaders { color: #82aaff; font-weight: bold; }
+
+        .player-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .disconnected-icon {
+            display: inline-flex;
+            align-items: center;
+            color: var(--disconnected-color);
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0;">TFRecords Live Match</h2>
+            <span id="recording-badge" class="status-badge status-idle">offline</span>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-box">
+                <span>SERVER</span>
+                <strong id="server-name">Not Connected</strong>
+            </div>
+            <div class="info-box">
+                <span>MAP</span>
+                <strong id="map-name">--</strong>
+            </div>
+            <div class="info-box">
+                <span>TEAM</span>
+                <strong id="user-team">--</strong>
+            </div>
+            <div class="info-box">
+                <span>ROSTER ROLE</span>
+                <strong id="blu-role">--</strong>
+            </div>
+            <div class="info-box">
+                <span>PLAYERS</span>
+                <strong id="player-count">0 / 0</strong>
+            </div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Slot / ID</th>
+                <th>Name / Type</th>
+                <th>SteamID3</th>
+                <th>GC Team</th>
+                <th>Ping</th>
+            </tr>
+        </thead>
+        <tbody id="player-table-body">
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--subtext-color);">Waiting for live match data...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const URLt = "https://aokmdxqtyvjkneegpzvl.supabase.co";
+    const publicClient = "sb_publishable_crR4uATuv2OJ12zBeg2xbQ_H69B1zek";
+
+    const { createClient } = supabase;
+    const client = createClient(URLt, publicClient);
+
+    const channel = client.channel('tf2-live-match');
+
+    channel.on('broadcast', { event: 'state_update' }, (payload) => {
+        updateDashboard(payload.payload);
+        console.log("Received payload")
+    }).subscribe();
+
+    const CUT_CABLE_SVG = `
+        <span class="disconnected-icon" title="Disconnected">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 5l-3 3" />
+                <path d="M14 4l1 1" />
+                <path d="M19 9l1 1" />
+                <path d="M11 7l-2 2" stroke-dasharray="1 1" />
+                <path d="M13 11l-2 2" />
+                <path d="M8 14l-4 4" />
+                <path d="M3 21l3-3" />
+                <line x1="2" y1="2" x2="22" y2="22" stroke="currentColor" stroke-width="2.5" />
+            </svg>
+        </span>
+    `;
+
+    function updateDashboard(data) {
+        const badge = document.getElementById('recording-badge');
+        if (data.is_recording) {
+            badge.innerText = "LIVE";
+            badge.className = "status-badge status-recording";
+        } else {
+            badge.innerText = "IDLE";
+            badge.className = "status-badge status-idle";
+        }
+
+        document.getElementById('server-name').innerText = data.hostname || "Unknown Server";
+        document.getElementById('map-name').innerText = data.map || "--";
+        
+        const teamElem = document.getElementById('user-team');
+        teamElem.innerText = data.user_team || "--";
+        teamElem.className = data.user_team === 'BLU' ? 'team-blu' : 'team-red';
+
+        document.getElementById('blu-role').innerText = data.blu_is ? (data.blu_is == "TF_GC_TEAM_DEFENDERS"? "DEFENSE":"ATTACK") : "--";
+        document.getElementById('player-count').innerText = `${data.players_count} / ${data.max_players}`;
+
+        const tbody = document.getElementById('player-table-body');
+        if (!data.players || data.players.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--subtext-color);">No player data in payload</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = data.players.map(p => {
+            const isDisconnected = p.status === "disconnected";
+            const rowClass = isDisconnected ? 'class="player-disconnected"' : '';
+            let gcTeamDisplay = "--";
+            let gcClass = "";
+            if (p.gc_team) {
+                gcTeamDisplay = p.gc_team.replace("TF_GC_TEAM_", "");
+                gcClass = p.gc_team === "RED" ? "gc-defenders" : "gc-invaders";
+            }
+
+            return `
+                <tr>
+                    <td>${p.slot !== undefined ? `[${p.slot}]` : (p.userid || '--')}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <img src="${p.avatar_url || 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_medium.jpg'}" 
+                            width="32" height="32" style="border-radius: 4px;" alt="avatar" />
+                            <div>
+                                <strong>${p.name ? escapeHtml(p.name) : 'TF Player'}</strong>
+                                ${isDisconnected ? CUT_CABLE_SVG : ''}
+                                ${p.type ? `<br><small style="color:var(--subtext-color)">${p.type}</small>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td><code>${p.steam_id3 || '--'}</code></td>
+                    <td class="${gcClass}">${gcTeamDisplay}</td>
+                    <td>${isDisconnected ? '<span style="color:var(--disconnected-color)">DC</span>' : (p.ping !== undefined ? p.ping + ' ms' : '--')}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+</script>
+
+</body>
+</html>
