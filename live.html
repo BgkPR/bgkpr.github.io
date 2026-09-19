@@ -23,6 +23,7 @@
             padding: 20px;
             display: flex;
             justify-content: center;
+            zoom: 1.15;
         }
 
         .container {
@@ -59,7 +60,7 @@
 
         .info-box {
             background: rgba(255, 255, 255, 0.05);
-            padding: 10px 15px;
+            padding: 10px 6px;
             border-radius: 6px;
         }
 
@@ -97,6 +98,84 @@
 
         tr:hover {
             background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .recorder-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 16px 12px;
+            display: flex;
+            align-items: center;
+            width: 150%;
+            margin-left: auto;
+            grid-column: 1 / -1;
+            justify-self: center;
+            margin-right: auto;
+            max-width: 250px;
+            box-sizing: border-box;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #41c047;
+        }
+
+        .recorder-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .split-avatar-container {
+            position: relative;
+            width: 72px;
+            height: 72px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            flex-shrink: 0;
+        }
+
+        .split-avatar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .split-avatar.primary {
+            clip-path: polygon(0 0, 75% 0, 25% 100%, 0 100%);
+            z-index: 2;
+        }
+
+        .split-avatar.secondary {
+            clip-path: polygon(75% 0, 100% 0, 100% 100%, 25% 100%);
+            z-index: 1;
+        }
+
+        .split-avatar-container::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: none;
+            z-index: 3;
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .recorder-details h3 {
+            margin: 0;
+            font-size: 1.1em;
+            color: var(--text-color);
+        }
+
+        .recorder-details span {
+            font-size: 0.85em;
+            color: var(--subtext-color);
         }
 
         .team-blu { color: var(--blu-color); font-weight: bold; }
@@ -142,13 +221,26 @@
                 <span>TEAM</span>
                 <strong id="user-team">--</strong>
             </div>
-            <div class="info-box">
+            <div class="info-box" style="display: none;">
                 <span>ROSTER ROLE</span>
                 <strong id="blu-role">--</strong>
             </div>
             <div class="info-box">
                 <span>PLAYERS</span>
                 <strong id="player-count">0 / 0</strong>
+            </div>
+            <div id="recorder-container" class="recorder-card" style="display: none;">
+                <div class="recorder-info">
+                    <div class="split-avatar-container">
+                        <img id="recorder-avatar-left" class="split-avatar primary" src="" alt="Primary Avatar" />
+                        <img id="recorder-avatar-right" class="split-avatar secondary" src="" alt="Secondary Avatar" />
+                    </div>
+                    <div class="recorder-details">
+                        <span style="text-transform: uppercase; font-weight: bold; color: #41c047; font-size: 0.75em;">Recorder ID</span>
+                        <h3 id="recorder-name">--</h3>
+                        <span id="recorder-steamid">--</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -225,7 +317,7 @@
             tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--subtext-color);">No player data in payload</td></tr>`;
             return;
         }
-
+        updateRecorderBanner(data);
         tbody.innerHTML = data.players.map(p => {
             const isDisconnected = p.status === "disconnected";
             const rowClass = isDisconnected ? 'class="player-disconnected"' : '';
@@ -256,6 +348,39 @@
                 </tr>
             `;
         }).join('');
+    }
+
+    // Current TFRecords M.I.
+    const FALLBACK_SECONDARY_AVATAR = "https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_medium.jpg";
+
+    function updateRecorderBanner(data) {
+        const container = document.getElementById('recorder-container');
+    
+        if (!data.RECORDER) {
+            container.style.display = 'none';
+            return;
+        }
+
+        container.style.display = 'flex';
+        document.getElementById('recorder-steamid').innerText = data.RECORDER_NAME ? "" : (data.RECORDER.slice(0,7) + "...");
+    
+        document.getElementById('recorder-name').innerText = data.RECORDER_NAME ? (data.RECORDER.slice(0,7) + "...") : "";
+
+        const leftImg = document.getElementById('recorder-avatar-left');
+        const rightImg = document.getElementById('recorder-avatar-right');
+        const avatarWrapper = document.querySelector('.split-avatar-container');
+        const primaryAvatar = data.RECORDERAVATAR || FALLBACK_SECONDARY_AVATAR;
+
+        if (data["SID"]) {
+            const secondaryAvatar = data.RECORDER_SECONDARY_AVATAR || FALLBACK_SECONDARY_AVATAR;
+            leftImg.src = secondaryAvatar;
+            rightImg.src = primaryAvatar;
+            rightImg.style.display = 'block';
+        } else {
+            leftImg.src = primaryAvatar;
+            leftImg.style.clipPath = 'none';
+            rightImg.style.display = 'none';
+        }
     }
 
     function escapeHtml(str) {
