@@ -48,6 +48,109 @@
             text-transform: uppercase;
         }
 
+        /* Unarchived Wait */
+        .hourglass-icon {
+            display: inline-block;
+            vertical-align: middle;
+            width: 14px;
+            height: 14px;
+            margin-left: 6px;
+            color: #e67e22;
+
+            animation: hourglassFlip 3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+            transform-origin: center center;
+        }
+
+        .hourglass-sand-stream {
+            stroke: #ffcf82;
+            stroke-linecap: round;
+            stroke-dasharray: 2 4;
+            animation: sandFlow 0.5s linear infinite;
+        }
+
+        .hourglass-top-sand {
+            fill: #ffcf82;
+            transform-origin: 12px 11px;
+            animation: drainTop 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        .hourglass-bottom-sand {
+            fill: #ffcf82;
+            transform-origin: 12px 21px;
+            animation: fillBottom 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        .hourglass-sand {
+            stroke-dasharray: 6;
+            stroke-dashoffset: 6;
+            animation: sandFlow 1s linear infinite;
+        }
+
+        @keyframes hourglassFlip {
+            0%, 75% {
+                transform: rotate(0deg);
+            }
+            90%, 100% {
+                transform: rotate(180deg);
+            }
+        }
+
+        @keyframes drainTop {
+            0% {
+                transform: scale(1, 1);
+                opacity: 1;
+            }
+            70%, 100% {
+                transform: scale(0, 0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fillBottom {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0;
+            }
+            70%, 100% {
+                transform: scale(1, 1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes sandFlow {
+            0% {
+                stroke-dashoffset: 6;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .player-link {
+            color: inherit;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.15s ease;
+        }
+
+
+        .player-link:hover {
+            color: #3498db;
+            text-decoration: underline;
+        }
+
+        .player-link.has-profile {
+            color: #f0f0f5;
+        }
+
+        .player-link:not(.has-profile) {
+            color: #a0a0ab;
+        }
+
+        .player-link:visited {
+            color: inherit;
+        }
+
         .status-recording { background-color: #2e7d32; color: #fff; }
         .status-idle { background-color: #424242; color: #aaa; }
 
@@ -137,8 +240,8 @@
 
         .split-avatar {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 0 !important;
+            left: 0!important;
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -190,6 +293,70 @@
             object-fit: cover;
         }
 
+        .preview-card {
+            position: fixed;
+            z-index: 1000;
+            width: 260px;
+            padding: 12px;
+            top: 0;
+            left: 0;
+            margin: 0;
+            background: #1a1a1c;
+            border: 1px solid #333338;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            pointer-events: none;
+            transition: opacity 0.15s ease;
+        }
+
+        .preview-card.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .preview-alias {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #f0f0f5;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .badge.archived {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+
+        .badge.unarchived {
+            background: rgba(149, 165, 166, 0.2);
+            color: #8abec2;
+            border: 1px solid #7f8c8d;
+        }
+
+        .hash-code {
+            font-size: 0.75rem;
+            color: #8abec2;
+        }
+
+        .preview-hint {
+            font-size: 0.7rem;
+            color: #777;
+            font-style: italic;
+        }
+
         .disconnected-icon {
             display: inline-flex;
             align-items: center;
@@ -200,7 +367,22 @@
     </style>
 </head>
 <body>
-
+<div id="player-preview-card" class="preview-card hidden">
+    <div class="preview-header">
+        <span id="preview-alias" class="preview-alias">---</span>
+        <span id="preview-badge" class="badge">---</span>
+    </div>
+    <div class="preview-body">
+        <div id="preview-queued-id" class="preview-field">
+            <span class="label">Archive ID:</span>
+            <code id="preview-hash" class="hash-code">---</code>
+        </div>
+        <div id="preview-status" class="preview-status">---</div>
+    </div>
+    <div id="preview-player-record" class="preview-footer">
+        <span class="preview-hint">Click to open full player record</span>
+    </div>
+</div>
 <div class="container">
     <div class="header-card">
         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -245,17 +427,35 @@
         </div>
     </div>
 
-    <table>
+    <table id="active-container">
+        <h3>Active Players</h3>
         <thead>
             <tr>
-                <th>Slot / ID</th>
-                <th>Name / Type</th>
+                <th>Slot ID</th>
+                <th>Name</th>
                 <th>SteamID3</th>
                 <th>GC Team</th>
                 <th>Ping</th>
             </tr>
         </thead>
         <tbody id="player-table-body">
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--subtext-color);">Waiting for live match data...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table id="inactive-container">
+        <h3>Disconnected Players</h3>
+        <thead>
+            <tr>
+                <th>Slot ID</th>
+                <th>Name</th>
+                <th>SteamID3</th>
+                <th>GC Team</th>
+            </tr>
+        </thead>
+        <tbody id="dc-player-table-body">
             <tr>
                 <td colspan="5" style="text-align: center; color: var(--subtext-color);">Waiting for live match data...</td>
             </tr>
@@ -271,9 +471,11 @@
     const client = createClient(URLt, publicClient);
 
     const channel = client.channel('tf2-live-match');
+    var lastPayload = null
 
     channel.on('broadcast', { event: 'state_update' }, (payload) => {
         updateDashboard(payload.payload);
+        lastPayload = payload.payload
         console.log("Received payload")
     }).subscribe();
 
@@ -291,6 +493,61 @@
             </svg>
         </span>
     `;
+
+    const UNARCHIVED_ICON_SVG = `
+        <svg class="hourglass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 22h14M5 2h14M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
+            <path class="hourglass-top-sand" d="M8 4h8l-4 4z" stroke="none" />
+            <path class="hourglass-sand-stream" d="M12 8v8" stroke-width="2" />
+            <path class="hourglass-bottom-sand" d="M8 20h8l-4-4z" stroke="none" />
+        </svg>
+    `;
+
+    function createPlayerRow(player, dc=false) {
+        const tr = document.createElement('tr');
+        tr.dataset.isArchived = player.archived === true;
+        tr.dataset.alias = player.name;
+
+        let gcTeamDisplay = "--";
+        let gcClass = "";
+        if (player.gc_team) {
+            gcTeamDisplay = player.gc_team.replace("TF_GC_TEAM_", "");
+            gcClass = player.gc_team === "RED" ? "gc-defenders" : "gc-invaders";
+        }
+
+        const isArchived = player.archived === true;
+        const profileUrl = `player.html?user=${encodeURIComponent(player.steam_id3)}`;
+        const statusVal = isArchived ? "" : UNARCHIVED_ICON_SVG
+
+        tr.innerHTML = `
+                <tr>
+                    <td>${player.slot !== undefined ? `[${player.slot}]` : (player.userid || '--')}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <img src="${player.avatar_url || 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_medium.jpg'}" 
+                            width="32" height="32" style="border-radius: 4px;" alt="avatar" />
+                            <div>
+                                <strong>${player.name ? escapeHtml(player.name) : 'TF_SPECTATOR'}</strong>
+                                ${player.type ? `<br><small style="color:var(--subtext-color)">${player.type}</small>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <code>
+                            ${profileUrl ? `
+                                <a href="${isArchived?profileUrl:"#"}" class="player-link ${isArchived?'has-profile':''}">
+                                    ${escapeHtml(player.steam_id3)}
+                                </a>
+                            ` : escapeHtml(player.steam_id3 || '--')}
+                            ${statusVal}
+                        </code>
+                    </td>
+                    <td class="${gcClass}">${gcTeamDisplay || "Loading..."}</td>
+                    ${!dc ? `<td>${player.ping !== undefined ? player.ping + ' ms' : '--'}</td>` : ''}
+                </tr>
+            `;
+        return tr;
+    }
 
     function updateDashboard(data) {
         const badge = document.getElementById('recording-badge');
@@ -313,41 +570,21 @@
         document.getElementById('player-count').innerText = `${data.players_count} / ${data.max_players}`;
 
         const tbody = document.getElementById('player-table-body');
+        const dcbody = document.getElementById('dc-player-table-body')
         if (!data.players || data.players.length === 0) {
             tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--subtext-color);">No player data in payload</td></tr>`;
+            dcbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--subtext-color);">No player data in payload</td></tr>`;
             return;
         }
         updateRecorderBanner(data);
-        tbody.innerHTML = data.players.map(p => {
-            const isDisconnected = p.status === "disconnected";
-            const rowClass = isDisconnected ? 'class="player-disconnected"' : '';
-            let gcTeamDisplay = "--";
-            let gcClass = "";
-            if (p.gc_team) {
-                gcTeamDisplay = p.gc_team.replace("TF_GC_TEAM_", "");
-                gcClass = p.gc_team === "RED" ? "gc-defenders" : "gc-invaders";
-            }
+        const conn = data.players.filter(p => p.status !== "disconnected");
+        const dc = data.players.filter(p => p.status === "disconnected");
 
-            return `
-                <tr>
-                    <td>${p.slot !== undefined ? `[${p.slot}]` : (p.userid || '--')}</td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <img src="${p.avatar_url || 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_medium.jpg'}" 
-                            width="32" height="32" style="border-radius: 4px;" alt="avatar" />
-                            <div>
-                                <strong>${p.name ? escapeHtml(p.name) : 'TF Player'}</strong>
-                                ${isDisconnected ? CUT_CABLE_SVG : ''}
-                                ${p.type ? `<br><small style="color:var(--subtext-color)">${p.type}</small>` : ''}
-                            </div>
-                        </div>
-                    </td>
-                    <td><code>${p.steam_id3 || '--'}</code></td>
-                    <td class="${gcClass}">${gcTeamDisplay}</td>
-                    <td>${isDisconnected ? '<span style="color:var(--disconnected-color)">DC</span>' : (p.ping !== undefined ? p.ping + ' ms' : '--')}</td>
-                </tr>
-            `;
-        }).join('');
+        tbody.replaceChildren(...(conn.map(p => createPlayerRow(p))));
+        if(dc.length > 0)
+            dcbody.replaceChildren(...(dc.map(p => createPlayerRow(p,true))));
+        else 
+            dcbody.innerHTML = `<tr><td colspan="4" class="empty-msg">No disconnected players.</td></tr>`;
     }
 
     // Current TFRecords M.I.
@@ -363,7 +600,6 @@
 
         container.style.display = 'flex';
         document.getElementById('recorder-steamid').innerText = data.RECORDER_NAME ? "" : (data.RECORDER.slice(0,7) + "...");
-    
         document.getElementById('recorder-name').innerText = data.RECORDER_NAME ? (data.RECORDER.slice(0,7) + "...") : "";
 
         const leftImg = document.getElementById('recorder-avatar-left');
@@ -386,6 +622,64 @@
     function escapeHtml(str) {
         return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
+
+    const previewCard = document.getElementById('player-preview-card');
+    document.body.addEventListener('mouseover', (e) => {
+        const playerLink = e.target.closest('.player-link');
+        if (!playerLink) return;
+        const row = playerLink.closest('tr');
+        if (!row) return;
+        const alias = row.dataset.alias;
+        const isArchived = row.dataset.isArchived === "true";
+
+        document.getElementById('preview-alias').textContent = alias;
+        document.getElementById('preview-hash').textContent = row.dataset.isArchived !== "true"?lastPayload["session_id"].slice(0,7):"";
+
+        const badge = document.getElementById('preview-badge');
+        const statusText = document.getElementById('preview-status');
+        const queueID = document.getElementById('preview-queued-id');
+        const pTFRecord = document.getElementById('preview-player-record');
+
+        if (isArchived) {
+            queueID.style.display = 'none';
+            pTFRecord.style.display = 'block';
+            badge.textContent = "ARCHIVED";
+            badge.className = "badge archived";
+            statusText.textContent = "Profile available in TFRecords.";
+        } else {
+            queueID.style.display = 'block';
+            pTFRecord.style.display = 'none';
+            badge.textContent = "UNINDEXED";
+            badge.className = "badge unarchived";
+            statusText.textContent = "Profile pending archive.";
+        }
+
+        previewCard.classList.remove('hidden');
+    });
+
+    document.body.addEventListener('mousemove', (e) => {
+        if (previewCard.classList.contains('hidden')) return;
+        const playerLink = e.target.closest('.player-link');
+        const linkBounds = playerLink?{x:playerLink.getBoundingClientRect().left,y:playerLink.getBoundingClientRect().top}:{x:0,y:0};
+        const parentRect = previewCard.offsetParent ? previewCard.offsetParent.getBoundingClientRect() : { left: 0, top: 0 };
+        let xW = Math.max(0, Math.min(playerLink.getBoundingClientRect().width, e.clientX - playerLink.getBoundingClientRect().left));
+        let xE = xW / playerLink.getBoundingClientRect().width;
+        const mM = 256;const lM = 16;
+        const dM = Math.round(mM - (xE * (mM - lM)));
+        let x = e.clientX - dM*2 + parentRect.left;
+        let y = e.clientY - previewCard.offsetHeight - parentRect.top;
+        if (x + previewCard.offsetWidth*2 > window.innerWidth) x = e.clientX - previewCard.offsetWidth*2;
+        if (y + previewCard.offsetHeight*2 > window.innerHeight) y = e.clientY - previewCard.offsetHeight*2;
+        previewCard.style.left = `${x}px`;
+        previewCard.style.top = `${y}px`;
+    });
+
+    document.body.addEventListener('mouseout', (e) => {
+        const playerLink = e.target.closest('.player-link');
+        if (playerLink) {
+            previewCard.classList.add('hidden');
+        }
+    });
 </script>
 
 </body>
