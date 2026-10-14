@@ -88,15 +88,18 @@ document.addEventListener("DOMContentLoaded", async () => {
             limitedMatches.forEach(match => {
             const option = document.createElement("a");
             option.classList.add("dropdown-item");
-            //option.href = `#${match.matchId}`;
             const matchingPlayer = match.players.find(player => player.username.toLowerCase().includes(filterText) || player.steamid.toLowerCase().includes(filterText));
             var croppedUsername = matchingPlayer.username;
-            if (croppedUsername.length > 11) {
-                croppedUsername = croppedUsername.slice(0, 10).trim() + "...";
+            if (croppedUsername.length > 25) {
+                croppedUsername = croppedUsername.slice(0, 24).trim() + "...";
             }
-            option.textContent = `${croppedUsername} ${matchingPlayer.steamid}`;
+            option.href = `/player.html?user=${matchingPlayer.steamid}`;
+            option.textContent = `${croppedUsername}`;
             dropdown.appendChild(option);
-            option.addEventListener("click", () => {
+            option.addEventListener("contextmenu", (e) => {
+                e.preventDefault();
+            });
+            option.addEventListener("auxclick", () => {
                 switchElements(mainPageSwitches, {"matchInfo": true, "matchesContainer": true})
                     displayMatchDetails(match, match.players);
                 });

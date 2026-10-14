@@ -7,15 +7,15 @@
   <script type="module" src="players.min.js"></script>
   <style>
     :root {
-      --bg: #0d1117;
+      --bg: #0e1621;
       --panel: #151c26;
       --panel-light: #1c2633;
       --text: #edf4ff;
-      --muted: #93a4b8;
-      --accent: #1028ff;
+      --muted: #6f7e8fba;
+      --accent: #0a1126;
       --accent-2: #ffca62;
       --danger: #ff7185;
-      --border: #2b394a;
+      --border: #ffffff00;
     }
 
     * { box-sizing: border-box; }
@@ -23,11 +23,37 @@
     body {
       margin: 0;
       min-height: 100vh;
+      --bg-image: url('wksr.png');
+      --bg-filter: invert(1) brightness(2) drop-shadow(0 0 8px rgb(32, 7, 100));
+      --bg-vw: 100vw;
+      --bg-vh: 100vh;
+      --width: 100%;
+      --height: 1219px;
       color: var(--text);
       font-family: Inter, Segoe UI, sans-serif;
       background:
-        radial-gradient(circle at top right, #181365 0, transparent 35rem),
-        var(--bg);
+        linear-gradient(135deg, #0d1117 0%, #040609 100%) fixed;
+    }
+
+    summary {
+      margin-top: 10px;
+    }
+
+    body::before {
+      content: "";
+      top: 0;
+      right: 0;
+      width: var(--width);
+      position: fixed;
+      height: var(--height);
+      background-image: var(--bg-image);
+      filter: var(--bg-filter);
+      background-repeat: no-repeat;
+      background-position: top;
+      background-size: var(--bg-vw) var(--bg-vh);
+      opacity: .05;
+      pointer-events: none;
+      z-index: 0;
     }
 
     header {
@@ -65,10 +91,48 @@
       gap: 1.5rem;
       align-items: center;
       padding: 1.5rem;
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      background: linear-gradient(135deg, var(--panel-light), var(--panel));
-      box-shadow: 0 20px 60px #0005;
+      background: rgba(18, 22, 31, 0.126);
+      border-radius: 16px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(3.1px);
+      -webkit-backdrop-filter: blur(3.1px);
+      border: 1px solid rgba(246, 246, 248, 0.042);
+    }
+
+    .profile-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      padding: 0.85px;
+      background: linear-gradient(33deg, rgba(245, 245, 245, 0), rgba(255, 255, 255, 0.118) 75%, rgba(55, 102, 120, 0.252));
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      pointer-events: none; 
+    }
+
+    .profile-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 50px;
+      border-radius: inherit;
+      z-index: 1; 
+      background: linear-gradient(
+        to bottom, 
+        rgba(255, 255, 255, 0.14) 0%, 
+        rgba(255, 255, 255, 0.02) 40%, 
+        transparent 100%
+      );  
+      pointer-events: none;
+      border-top-right-radius: 16px;
+    }
+
+    .profile-card > * {
+      position: relative;
+      z-index: 2;
     }
 
     .avatar {
@@ -189,9 +253,12 @@
 
     section {
       padding: 1.25rem;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: var(--panel);
+      background: rgba(31, 33, 50, 0.263);
+      border-radius: 16px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.23);
+      backdrop-filter: blur(6.1px);
+      -webkit-backdrop-filter: blur(6.1px);
+      border: 1px solid rgba(235, 235, 237, 0.054);
     }
 
     h2 {
@@ -199,6 +266,31 @@
       font-size: 1rem;
       text-transform: uppercase;
       letter-spacing: .08em;
+    }
+
+    .alias-item {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      padding: 1.5rem;
+      background: rgb(0, 12, 39);
+      border-radius: 16px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(3.1px);
+      -webkit-backdrop-filter: blur(3.1px);
+      border: 1px solid rgba(246, 246, 248, 0.042);
+    }
+
+    .alias-item::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      padding: 0.85px;
+      background: linear-gradient(33deg, rgba(245, 245, 245, 0), rgba(255, 255, 255, 0.118) 75%, rgba(55, 102, 120, 0.252));
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
     }
 
     .alias-list {
@@ -239,7 +331,7 @@
 
     .home-button:hover,
     .home-button:focus-visible {
-      background: #2439ff;
+      background: #111a2d;
     }
 
     .matches {
@@ -260,6 +352,27 @@
     .match-shimmer {
       height: 4.25rem;
       border-left-color: var(--border);
+    }
+
+    details.match-chat {
+      background-color: #f9f9f900;
+    }
+
+    details.match-chat[open] {
+      background-color: #0b101b;
+      display: flex;
+      flex-direction: column;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+
+    .ul-chat{
+      padding-top:15px;
+      background-color: #070a12;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      border-radius: 4px;
     }
 
     .match strong { display: block; margin-bottom: .25rem; }
@@ -286,18 +399,13 @@
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand">TFRecords</div>
-    
-  </header>
-
   <main>
     
     <article class="profile-card">
       <div id="avatar" class="avatar"><span class="skeleton" aria-label="Loading avatar"></span></div>
       <div>
         <h1 id="displayName"><span class="skeleton skeleton-title" aria-label="Loading player name"></span></h1>
-        <p id="userId" class="user-id"><span class="skeleton skeleton-id" aria-label="Loading player ID"></span></p>
+        <a id="userId" class="user-id"><span class="skeleton skeleton-id" aria-label="Loading player ID"></span></a>
         <p class="muted"></p>
       </div>
     </article>
@@ -339,7 +447,6 @@
           <div class="skeleton match match-shimmer" aria-label="Loading match"></div>
           <div class="skeleton match match-shimmer" aria-label="Loading match"></div>
         </div>
-        
       </section>
     </div>
   </main>
