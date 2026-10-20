@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Player Record</title>
   <script type="module" src="players.min.js"></script>
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
   <style>
     :root {
       --bg: #0e1621;
@@ -430,6 +431,9 @@
 
     <div class="grid">
       <div class="alias-column">
+        <section id="discrim-tf-player">
+          <div id="network-graph" style="width: 100%; height: 25vh; background: #111;"></div>
+        </section>
         <section>
           <h2>Previous profiles</h2>
           <ul id="previousProfiles" class="alias-list previous-profile-list">
