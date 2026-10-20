@@ -329,6 +329,24 @@
       text-decoration: none;
     }
 
+    .share-button {
+      display: inline-block;
+      margin-top: 1rem;
+      align-self: flex-start;
+      padding: .65rem 1rem;
+      border: 1px solid #273e6e;
+      border-radius: 8px;
+      color: var(--text);
+      background: #273e6e;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .share-button:hover,
+    .share-button:focus-visible {
+      background: #1d3e86;
+    }
+
     .home-button:hover,
     .home-button:focus-visible {
       background: #111a2d;
@@ -437,6 +455,13 @@
             <li class="skeleton shimmer-alias" aria-label="Loading alias"></li>
           </ul>
         </section>
+        <button id="copy-share-btn" class="share-button" title="Copy short URL">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span id="copy-tooltip">Copy TFRecords URL</span>
+        </button>
         <a class="home-button" href="/tfrecords.html?">Return to homepage</a>
       </div>
 
