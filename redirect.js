@@ -1,0 +1,1 @@
+const A="0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",S=window.location.pathname.split("/").filter(Boolean),c=S[S.length-1];if(c&&"p"!==c)try{let l=0;for(let e=0;e<c.length;e++)l=62*l+A.indexOf(c[e]);window.location.replace(`../player.html?user=[U:1:${l}]`)}catch(e){window.location.replace("../tfrecords.html")}else window.location.replace("../tfrecords.html");
