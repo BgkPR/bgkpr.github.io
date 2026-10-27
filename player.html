@@ -36,10 +36,6 @@
         linear-gradient(135deg, #0d1117 0%, #040609 100%) fixed;
     }
 
-    summary {
-      margin-top: 10px;
-    }
-
     body::before {
       content: "";
       top: 0;
@@ -398,7 +394,6 @@
       grid-template-columns: 1fr auto;
       gap: 1rem;
       padding: 1rem;
-      border-left: 3px solid var(--accent);
       border-radius: 8px;
       background: var(--panel-light);
     }
@@ -412,12 +407,26 @@
       background-color: #f9f9f900;
     }
 
+    details.match-chat summary:hover {
+      cursor: pointer;
+    }
+
     details.match-chat[open] {
       background-color: #0b101b;
       display: flex;
       flex-direction: column;
       border-radius: 4px;
       margin-bottom: 15px;
+    }
+
+    details.match-chat[open] summary {
+      text-align: center;
+    }
+
+    details.match-chat summary {
+      text-align: center;
+      margin-top: 10px;
+      list-style: none;
     }
 
     .ul-chat{
