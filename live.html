@@ -44,7 +44,6 @@
             align-items: center;
             gap: 6px;
             padding: 4px 10px;
-            border-radius: 12px;
             font-size: 11px;
             font-weight: 700;
             letter-spacing: 0.5px;
@@ -145,10 +144,7 @@
         }
 
         .status-recording {
-            background: rgba(239, 68, 68, 0.15);
             color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
         }
 
         .status-recording .status-dot {
@@ -183,9 +179,7 @@
         }
 
         .status-idle {
-            background: rgba(100, 116, 139, 0.15);
             color: #94a3b8;
-            border: 1px solid rgba(100, 116, 139, 0.3);
         }
 
         .status-idle .status-dot {
@@ -537,7 +531,7 @@
 
         tr.innerHTML = `
                 <tr>
-                    <td>${player.slot !== undefined ? `[${player.slot}]` : (player.userid || '--')}</td>
+                    <td>${player.slot !== undefined ? `[${player.slot}]` : (player.userid || (player["bot-IDLE"]? `Joining.. (${player["bot-IDLE"]} ${player["bot-IDLE"] == 1?'second':'seconds'})` : '--'))}</td>
                     <td>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <img src="${player.avatar_url || 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_medium.jpg'}" 
@@ -555,7 +549,7 @@
                                     ${escapeHtml(player.steam_id3)}
                                 </a>
                             ` : escapeHtml(player.steam_id3 || '--')}
-                            ${true?`<a href="${`https://steamcommunity.com/profiles/${player.steam_id3}`}" class="player-link">
+                            ${true?`<a href="${`https://steamcommunity.com/profiles/${player.steam_id3}`}" class="player-link steam-link">
                                      View @ Steam
                                 </a>`:''}
                             ${statusVal}
@@ -644,7 +638,7 @@
 
     const previewCard = document.getElementById('player-preview-card');
     document.body.addEventListener('mouseover', (e) => {
-        const playerLink = e.target.closest('.player-link');
+        const playerLink = e.target.closest('.player-link:not(.steam-link)');
         if (!playerLink) return;
         const row = playerLink.closest('tr');
         if (!row) return;
