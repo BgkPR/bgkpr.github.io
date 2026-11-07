@@ -531,7 +531,7 @@
 
         tr.innerHTML = `
                 <tr>
-                    <td>${player.slot !== undefined ? `[${player.slot}]` : (player.userid || (player["bot-IDLE"]? `Joining.. (${player["bot-IDLE"]} ${player["bot-IDLE"] == 1?'second':'seconds'})` : '--'))}</td>
+                    <td>${player.slot !== undefined ? `[${player.slot}]` : (player.userid || ((player["bot-IDLE"] != null && player["bot-IDLE"] >= 0)? `Joining.. (${player["bot-IDLE"]} ${player["bot-IDLE"] == 1?'second':'seconds'})` : '--'))}</td>
                     <td>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <img src="${player.avatar_url || 'https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_medium.jpg'}" 
