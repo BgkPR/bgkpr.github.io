@@ -189,7 +189,7 @@
       to { background-position: -200% 0; }
     }
 
-    h1, h2, p { margin-top: 0; }
+    h1, h2, h4, p { margin-top: 0; }
 
     h1 {
       margin-bottom: .4rem;
@@ -293,7 +293,7 @@
       border: 1px solid rgba(235, 235, 237, 0.054);
     }
 
-    h2 {
+    h2, h4 {
       margin-bottom: 1rem;
       font-size: 1rem;
       text-transform: uppercase;
@@ -459,6 +459,23 @@
       .avatar { margin: 0 auto 1rem; }
       .match { grid-template-columns: 1fr; }
     }
+
+    @keyframes loader {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+    }
+
+    .loader {
+      position: absolute;
+      vertical-align: middle;
+      animation: loader 2s linear infinite;
+      transform-origin: center; 
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -476,9 +493,11 @@
     <div class="grid">
       <div class="alias-column">
         <section id="discrim-tf-player">
+          <img src="tf.svg" id="loader" class="loader" alt="Spinner SVG" width="25" height="25">
           <button id="toggle-expand-btn" class="expand-btn">Expand</button>
           <div id="network-graph"></div>
           <input type="checkbox" id="edgeToggle" name="toggle" checked /><label for="edgeToggle">Toggle Lines</label>
+          <input type="checkbox" id="maxToggle" name="toggleAll" hidden /><label id="maxToggleL" for="maxToggle" hidden>Show All Data</label>
         </section>
         <section>
           <h2>Previous profiles</h2>
